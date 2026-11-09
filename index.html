@@ -384,6 +384,46 @@
     /* =====================================================
        RESPONSIVIDADE
        ===================================================== */
+    /* =====================================================
+       MOTORES PRONTOS
+       ===================================================== */
+    #telaMotores .row-motores { align-items: flex-start; }
+
+    .pill-grupo {
+      display: inline-flex; gap: 4px; background-color: #f1f4f7;
+      padding: 3px; border-radius: 9px; flex-wrap: wrap;
+    }
+    .pill-btn {
+      border: none; background: transparent; color: #6c757d;
+      font-size: 0.78rem; font-weight: 600; padding: 6px 14px; border-radius: 7px;
+      transition: all 0.15s ease; white-space: nowrap;
+    }
+    .pill-btn:hover { color: var(--azul-principal); }
+    .pill-btn.active {
+      background-color: white; color: var(--azul-principal);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .motor-dica {
+      min-height: 22px; font-size: 0.78rem; color: var(--texto-secundario); margin: -4px 0 14px;
+    }
+    .motor-dica b { color: var(--azul-principal); }
+
+    .motor-filtros {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+    }
+    .motor-filtros .form-select { min-height: 36px; font-size: 0.8rem; width: auto; min-width: 130px; }
+
+    .badge-fase {
+      display: inline-block; border-radius: 6px; padding: 4px 8px;
+      font-size: 0.68rem; font-weight: 700; background-color: #eaf1f9; color: #1b4079;
+    }
+    .badge-fase.tri { background-color: #fff3d6; color: #8a5a00; }
+    .badge-fase.trie { background-color: #f1e8fb; color: #5b2d91; }
+
+    .motor-paginacao { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; }
+
     @media (max-width: 991.98px) {
       .top-header { margin-bottom: 14px; }
       .table-responsive { max-height: 60vh; }
@@ -464,6 +504,7 @@
       <div class="d-flex">
         <button type="button" class="menu-btn active" id="btnMenuEstoque">📦 &nbsp; Estoque</button>
         <button type="button" class="menu-btn" id="btnMenuHistorico">◷ &nbsp; Histórico</button>
+        <button type="button" class="menu-btn" id="btnMenuMotores">⚙ &nbsp; Motores Prontos</button>
       </div>
     </div>
 
@@ -710,6 +751,304 @@
             <div id="paginacaoBotoes"></div>
           </div>
         </div>
+      </div>
+
+    </section>
+
+    <!-- TELA MOTORES PRONTOS -->
+    <section id="telaMotores" class="tela">
+
+      <div class="historico-cabecalho">
+        <div class="historico-cabecalho-titulo">
+          <div class="icone-estoque">⚙</div>
+          <div>
+            <h2>Estoque de Motores Prontos</h2>
+            <p>Motores de 4" e 6" por modelo, fase, potência e tensão</p>
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <div class="pill-grupo">
+            <button type="button" class="pill-btn active" id="btnMotorSubEstoque">Estoque</button>
+            <button type="button" class="pill-btn" id="btnMotorSubHistorico">Histórico</button>
+          </div>
+          <button type="button" class="btn btn-atualizar" id="btnAtualizarMotores">↻ &nbsp; Atualizar</button>
+        </div>
+      </div>
+
+      <!-- RESUMO -->
+      <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+          <div class="resumo-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="resumo-label">Total de motores em estoque</div>
+                <div class="resumo-valor" id="motTotal">0</div>
+              </div>
+              <div class="resumo-icone">⚙</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="resumo-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="resumo-label">Motores 4"</div>
+                <div class="resumo-valor" id="motTotal4">0</div>
+              </div>
+              <div class="resumo-icone">4"</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="resumo-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="resumo-label">Motores 6"</div>
+                <div class="resumo-valor" id="motTotal6">0</div>
+              </div>
+              <div class="resumo-icone">6"</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="resumo-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="resumo-label">Configurações com registro</div>
+                <div class="resumo-valor" id="motCombinacoes">0</div>
+              </div>
+              <div class="resumo-icone">#</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TELA: ESTOQUE -->
+      <div id="motoresSubEstoque">
+        <div class="row g-4 row-motores">
+
+          <!-- COLUNA ESQUERDA -->
+          <div class="col-lg-4 col-md-5">
+
+            <div class="card-custom p-4 mb-3">
+              <div class="card-title-custom mb-4">
+                <div class="card-title-icon">⇄</div>
+                <span>Nova Movimentação</span>
+              </div>
+
+              <form id="formMotor">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Tipo de Movimento</label>
+                  <select class="form-select" id="motorTipo" required>
+                    <option value="Entrada">Entrada</option>
+                    <option value="Saída">Saída</option>
+                  </select>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label fw-bold">Diâmetro</label>
+                    <select class="form-select" id="motorDiametro" required>
+                      <option value="">Selecione...</option>
+                      <option value="4">4"</option>
+                      <option value="6">6"</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label fw-bold">Modelo</label>
+                    <select class="form-select" id="motorModelo" required>
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label fw-bold">Fase</label>
+                    <select class="form-select" id="motorFase" required>
+                      <option value="">Selecione...</option>
+                      <option value="MONO">MONO</option>
+                      <option value="TRI">TRI</option>
+                      <option value="TRI-E">TRI-E</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label fw-bold">Tensão</label>
+                    <select class="form-select" id="motorTensao" required>
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label fw-bold">Potência</label>
+                    <select class="form-select" id="motorPotencia" required>
+                      <option value="">Selecione...</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label fw-bold">Quantidade</label>
+                    <input type="number" class="form-control" id="motorQuantidade" required min="1" step="1" placeholder="Qtd.">
+                  </div>
+                </div>
+
+                <div class="motor-dica" id="motorDica"></div>
+
+                <div class="mb-4">
+                  <label class="form-label fw-bold">Responsável</label>
+                  <input type="text" class="form-control" id="motorResponsavel" required placeholder="Seu nome">
+                </div>
+
+                <button type="submit" class="w-100 btn btn-registrar btn-lg" id="btnSalvarMotor">Registrar Operação</button>
+              </form>
+            </div>
+
+            <div class="card-historico p-4">
+              <div class="historico-titulo mb-3">
+                <div class="card-title-icon">◷</div>
+                <span>Últimos Registros</span>
+              </div>
+              <div id="listaUltimosMotores" class="list-group list-group-flush">
+                <div class="list-group-item text-center text-muted py-3 small">Carregando...</div>
+              </div>
+              <div class="text-center mt-3">
+                <button type="button" class="btn btn-sm btn-link text-decoration-none fw-semibold" id="btnMotorVerHistorico">Ver histórico completo →</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- COLUNA DIREITA -->
+          <div class="col-lg-8 col-md-7">
+            <div class="card-custom p-3 p-lg-4">
+
+              <div class="motor-filtros">
+                <div class="pill-grupo" id="motorPillsDiametro">
+                  <button type="button" class="pill-btn active" data-diam="">Todos</button>
+                  <button type="button" class="pill-btn" data-diam="4">4"</button>
+                  <button type="button" class="pill-btn" data-diam="6">6"</button>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                  <select class="form-select" id="motorFiltroModelo">
+                    <option value="">Todos os modelos</option>
+                    <option value="VMU">VMU</option>
+                    <option value="VMUP">VMUP</option>
+                    <option value="VMSP">VMSP</option>
+                  </select>
+                  <select class="form-select" id="motorFiltroFase">
+                    <option value="">Todas as fases</option>
+                    <option value="MONO">MONO</option>
+                    <option value="TRI">TRI</option>
+                    <option value="TRI-E">TRI-E</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-container">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover table-custom">
+                    <thead>
+                      <tr>
+                        <th>DIÂMETRO</th>
+                        <th>MODELO</th>
+                        <th>FASE</th>
+                        <th>POTÊNCIA</th>
+                        <th>TENSÃO</th>
+                        <th>ENTRADAS</th>
+                        <th>SAÍDAS</th>
+                        <th>ESTOQUE</th>
+                      </tr>
+                    </thead>
+                    <tbody id="corpoMotores">
+                      <tr><td colspan="8" class="estado-tabela">Carregando dados...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SUB-TELA: HISTÓRICO -->
+      <div id="motoresSubHistorico" style="display: none;">
+
+        <div class="filtros-card">
+          <div class="filtros-titulo">🔎 Filtros de pesquisa</div>
+          <div class="row g-3">
+            <div class="col-lg-2 col-md-6">
+              <label class="form-label">Diâmetro</label>
+              <select class="form-select" id="motorHistDiametro">
+                <option value="">Todos</option>
+                <option value="4">4"</option>
+                <option value="6">6"</option>
+              </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+              <label class="form-label">Modelo</label>
+              <select class="form-select" id="motorHistModelo">
+                <option value="">Todos</option>
+                <option value="VMU">VMU</option>
+                <option value="VMUP">VMUP</option>
+                <option value="VMSP">VMSP</option>
+              </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+              <label class="form-label">Fase</label>
+              <select class="form-select" id="motorHistFase">
+                <option value="">Todas</option>
+                <option value="MONO">MONO</option>
+                <option value="TRI">TRI</option>
+                <option value="TRI-E">TRI-E</option>
+              </select>
+            </div>
+            <div class="col-lg-2 col-md-6">
+              <label class="form-label">Tipo</label>
+              <select class="form-select" id="motorHistTipo">
+                <option value="">Todos</option>
+                <option value="Entrada">Entrada</option>
+                <option value="Saída">Saída</option>
+              </select>
+            </div>
+            <div class="col-lg-4 col-md-12 d-flex align-items-end gap-2">
+              <button type="button" class="btn btn-limpar" id="btnMotorLimparFiltros">Limpar filtros</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-custom p-3 p-lg-4">
+          <div class="tabela-historico-container">
+            <div class="tabela-historico-scroll">
+              <table class="table table-bordered table-hover tabela-historico" style="min-width: 1000px;">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>DATA/HORA</th>
+                    <th>TIPO</th>
+                    <th>DIÂMETRO</th>
+                    <th>MODELO</th>
+                    <th>FASE</th>
+                    <th>POTÊNCIA</th>
+                    <th>TENSÃO</th>
+                    <th>QUANTIDADE</th>
+                    <th>RESPONSÁVEL</th>
+                  </tr>
+                </thead>
+                <tbody id="corpoHistoricoMotores">
+                  <tr><td colspan="10" class="estado-tabela">Carregando histórico...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="motor-paginacao">
+              <div class="paginacao-info" id="motorPaginacaoInfo">Nenhum registro</div>
+              <div id="motorPaginacaoBotoes"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </section>
@@ -1316,28 +1655,29 @@
 
     /* Botão de recarregar do cabeçalho: usa o botão "Atualizar" da tela aberta */
     function recarregarTelaAtual() {
+      if (document.getElementById("telaMotores").classList.contains("ativa")) {
+        document.getElementById("btnAtualizarMotores").click();
+        return;
+      }
+
       const historicoAberto = document.getElementById("telaHistorico").classList.contains("ativa");
       document.getElementById(historicoAberto ? "btnAtualizarHistorico" : "btnAtualizar").click();
     }
 
     function abrirTela(tela) {
-      const telaEstoque = document.getElementById("telaEstoque");
-      const telaHistorico = document.getElementById("telaHistorico");
-      const btnEstoque = document.getElementById("btnMenuEstoque");
-      const btnHistorico = document.getElementById("btnMenuHistorico");
+      const telas = {
+        estoque:   ["telaEstoque",   "btnMenuEstoque"],
+        historico: ["telaHistorico", "btnMenuHistorico"],
+        motores:   ["telaMotores",   "btnMenuMotores"]
+      };
 
-      if (tela === "estoque") {
-        telaEstoque.classList.add("ativa");
-        telaHistorico.classList.remove("ativa");
-        btnEstoque.classList.add("active");
-        btnHistorico.classList.remove("active");
-      } else {
-        telaEstoque.classList.remove("ativa");
-        telaHistorico.classList.add("ativa");
-        btnEstoque.classList.remove("active");
-        btnHistorico.classList.add("active");
-        carregarTelaHistorico();
-      }
+      Object.keys(telas).forEach((chave) => {
+        document.getElementById(telas[chave][0]).classList.toggle("ativa", chave === tela);
+        document.getElementById(telas[chave][1]).classList.toggle("active", chave === tela);
+      });
+
+      if (tela === "historico") carregarTelaHistorico();
+      if (tela === "motores") atualizarMotores();
     }
 
     /* =====================================================
@@ -1647,6 +1987,684 @@
 
       sincronizarAlturaColunas();
     }
+
+    /* =====================================================
+       MOTORES PRONTOS - CONFIGURAÇÃO
+       ===================================================== */
+    /*
+     * Para incluir/remover modelos, potências ou tensões,
+     * basta editar as listas abaixo.
+     */
+    const MOTORES_MODELOS = {
+      "4": ["VMU"],
+      "6": ["VMUP", "VMSP"]
+    };
+
+    const MOTORES_HP = {
+      "4": {
+        MONO: [0.3, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 5.5],
+        TRI:  [0.3, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 12]
+      },
+      "6": {
+        MONO: [2, 3, 4, 5, 5.5, 7.5, 10, 12],
+        TRI:  [2, 3, 4, 5, 5.5, 7.5, 10, 12, 15, 20, 25, 30, 40, 50]
+      }
+    };
+
+    const MOTORES_FASES = ["MONO", "TRI", "TRI-E"];
+
+    const MOTORES_TENSOES = {
+      "MONO":  ["220V", "254V", "440V"],
+      "TRI":   ["220V", "380V", "440V", "220V e 380V"],
+      "TRI-E": ["440V"]
+    };
+
+    const MOTORES_POR_PAGINA = 15;
+    const QTD_ULTIMOS_MOTORES = 5;
+
+    let motoresMov = [];
+    let motoresEstoque = [];
+    let motoresHistFiltrado = [];
+    let motoresPagina = 1;
+    let motoresDiametroFiltro = "";
+
+    /* =====================================================
+       MOTORES - UTILITÁRIOS
+       ===================================================== */
+    function motorEl(id) {
+      return document.getElementById(id);
+    }
+
+    function formatarDiametro(diametro) {
+      return diametro + '"';
+    }
+
+    function formatarPotencia(potencia) {
+      return Number(potencia).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + " HP";
+    }
+
+    function listaPotencias(diametro, fase) {
+      const config = MOTORES_HP[diametro];
+      if (!config) return [];
+      return fase === "MONO" ? config.MONO : config.TRI;
+    }
+
+    function classeFase(fase) {
+      if (fase === "TRI") return "tri";
+      if (fase === "TRI-E") return "trie";
+      return "";
+    }
+
+    function normalizarMotor(m) {
+      return {
+        id: m.id,
+        dataHora: m.dataHora,
+        tipo: String(m.tipo || ""),
+        diametro: String(m.diametro || ""),
+        modelo: String(m.modelo || "").toUpperCase(),
+        fase: String(m.fase || "").toUpperCase(),
+        potencia: Number(m.potencia) || 0,
+        tensao: String(m.tensao || ""),
+        quantidade: Number(m.quantidade) || 0,
+        responsavel: String(m.responsavel || "")
+      };
+    }
+
+    function chaveMotor(m) {
+      return [m.diametro, m.modelo, m.fase, Number(m.potencia), m.tensao].join("|");
+    }
+
+    function descricaoMotor(m) {
+      return `${m.modelo} ${formatarDiametro(m.diametro)} · ${formatarPotencia(m.potencia)} · ${m.fase} ${m.tensao}`;
+    }
+
+    /* =====================================================
+       MOTORES - CARREGAR DO APPS SCRIPT
+       ===================================================== */
+    function consultarMotores() {
+      return new Promise((resolve, reject) => {
+        const callbackName = "callbackMotores_" + Date.now();
+        const script = document.createElement("script");
+
+        const timeout = setTimeout(() => {
+          limpar();
+          reject(new Error("Tempo limite excedido ao consultar os motores."));
+        }, 20000);
+
+        function limpar() {
+          clearTimeout(timeout);
+          if (script.parentNode) script.parentNode.removeChild(script);
+          delete window[callbackName];
+        }
+
+        window[callbackName] = function (resposta) {
+          limpar();
+          if (!resposta) {
+            reject(new Error("Resposta vazia do Google Apps Script."));
+            return;
+          }
+          if (resposta.sucesso === false) {
+            reject(new Error(resposta.erro || "Erro ao consultar os motores."));
+            return;
+          }
+          if (resposta.tipo !== "motores") {
+            reject(new Error("O Google Apps Script ainda não possui o módulo de motores. Atualize e reimplante o script."));
+            return;
+          }
+          resolve((resposta.movimentacoes || []).map(normalizarMotor));
+        };
+
+        script.onerror = function () {
+          limpar();
+          reject(new Error("Não foi possível conectar ao Google Apps Script."));
+        };
+
+        script.src = URL_APPS_SCRIPT + "?acao=motores&callback=" + encodeURIComponent(callbackName);
+        document.body.appendChild(script);
+      });
+    }
+
+    async function atualizarMotores() {
+      try {
+        motoresMov = await consultarMotores();
+
+        calcularEstoqueMotores();
+        renderizarResumoMotores();
+        renderizarTabelaMotores();
+        renderizarUltimosMotores();
+        aplicarFiltrosHistoricoMotores();
+        atualizarDicaMotor();
+        marcarAtualizacao(true);
+
+      } catch (erro) {
+        console.error("Erro ao carregar motores:", erro);
+        marcarAtualizacao(false);
+
+        motorEl("corpoMotores").innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center text-danger py-4">
+              Erro ao carregar os dados.
+              <br>
+              <small>${escaparHTML(erro.message)}</small>
+            </td>
+          </tr>
+        `;
+
+        mostrarAviso("Não foi possível carregar os motores: " + erro.message, "danger");
+      }
+    }
+
+    /* =====================================================
+       MOTORES - CÁLCULO DO ESTOQUE
+       ===================================================== */
+    function calcularEstoqueMotores() {
+      const mapa = new Map();
+
+      motoresMov.forEach((m) => {
+        const chave = chaveMotor(m);
+
+        if (!mapa.has(chave)) {
+          mapa.set(chave, {
+            chave: chave,
+            diametro: m.diametro,
+            modelo: m.modelo,
+            fase: m.fase,
+            potencia: m.potencia,
+            tensao: m.tensao,
+            entradas: 0,
+            saidas: 0
+          });
+        }
+
+        const item = mapa.get(chave);
+
+        if (m.tipo === "Entrada") item.entradas += m.quantidade;
+        if (m.tipo === "Saída") item.saidas += m.quantidade;
+      });
+
+      motoresEstoque = Array.from(mapa.values()).map((item) => {
+        item.estoque = item.entradas - item.saidas;
+        return item;
+      });
+
+      motoresEstoque.sort((a, b) => {
+        return (Number(a.diametro) - Number(b.diametro))
+          || a.modelo.localeCompare(b.modelo, "pt-BR")
+          || (MOTORES_FASES.indexOf(a.fase) - MOTORES_FASES.indexOf(b.fase))
+          || (a.potencia - b.potencia)
+          || a.tensao.localeCompare(b.tensao, "pt-BR");
+      });
+    }
+
+    function estoqueDoMotor(chave) {
+      const item = motoresEstoque.find(e => e.chave === chave);
+      return item ? item.estoque : 0;
+    }
+
+    /* =====================================================
+       MOTORES - RESUMO
+       ===================================================== */
+    function renderizarResumoMotores() {
+      const total = motoresEstoque.reduce((s, e) => s + e.estoque, 0);
+      const total4 = motoresEstoque.filter(e => e.diametro === "4").reduce((s, e) => s + e.estoque, 0);
+      const total6 = motoresEstoque.filter(e => e.diametro === "6").reduce((s, e) => s + e.estoque, 0);
+
+      motorEl("motTotal").innerText = formatarNumero(total);
+      motorEl("motTotal4").innerText = formatarNumero(total4);
+      motorEl("motTotal6").innerText = formatarNumero(total6);
+      motorEl("motCombinacoes").innerText = formatarNumero(motoresEstoque.length);
+    }
+
+    /* =====================================================
+       MOTORES - TABELA DE ESTOQUE
+       ===================================================== */
+    function renderizarTabelaMotores() {
+      const corpo = motorEl("corpoMotores");
+      const modelo = motorEl("motorFiltroModelo").value;
+      const fase = motorEl("motorFiltroFase").value;
+
+      const lista = motoresEstoque.filter((e) => {
+        if (motoresDiametroFiltro && e.diametro !== motoresDiametroFiltro) return false;
+        if (modelo && e.modelo !== modelo) return false;
+        if (fase && e.fase !== fase) return false;
+        return true;
+      });
+
+      corpo.innerHTML = "";
+
+      if (!lista.length) {
+        const mensagem = motoresEstoque.length
+          ? "Nenhum motor encontrado com os filtros selecionados."
+          : "Nenhum motor registrado ainda. Use \"Nova Movimentação\" para lançar a primeira entrada.";
+
+        corpo.innerHTML = `<tr><td colspan="8" class="estado-tabela">${mensagem}</td></tr>`;
+        return;
+      }
+
+      lista.forEach((e) => {
+        const tr = document.createElement("tr");
+        if (e.estoque < 0) tr.classList.add("estoque-negativo");
+
+        tr.innerHTML = `
+          <td class="text-center fw-semibold">${escaparHTML(formatarDiametro(e.diametro))}</td>
+          <td class="text-center fw-semibold">${escaparHTML(e.modelo)}</td>
+          <td class="text-center"><span class="badge-fase ${classeFase(e.fase)}">${escaparHTML(e.fase)}</span></td>
+          <td class="text-center">${escaparHTML(formatarPotencia(e.potencia))}</td>
+          <td class="text-center">${escaparHTML(e.tensao)}</td>
+          <td class="text-center text-success fw-bold">${formatarNumero(e.entradas)}</td>
+          <td class="text-center text-danger fw-bold">${formatarNumero(e.saidas)}</td>
+          <td class="text-center"><span class="estoque-atual">${formatarNumero(e.estoque)}</span></td>
+        `;
+
+        corpo.appendChild(tr);
+      });
+    }
+
+    /* =====================================================
+       MOTORES - ÚLTIMOS REGISTROS
+       ===================================================== */
+    function renderizarUltimosMotores() {
+      const lista = motorEl("listaUltimosMotores");
+      lista.innerHTML = "";
+
+      if (!motoresMov.length) {
+        lista.innerHTML = `
+          <div class="list-group-item text-center text-muted py-3 small">
+            Nenhuma movimentação registrada.
+          </div>
+        `;
+        return;
+      }
+
+      motoresMov.slice(0, QTD_ULTIMOS_MOTORES).forEach((m) => {
+        const badgeClass = m.tipo === "Entrada" ? "badge-entrada" : "badge-saida";
+
+        lista.innerHTML += `
+          <div class="list-group-item historico-item">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <span class="badge ${badgeClass} me-1">${escaparHTML(m.tipo)}</span>
+                <span class="historico-material">${escaparHTML(descricaoMotor(m))}</span>
+              </div>
+              <span class="historico-data">${escaparHTML(formatarDataHora(m.dataHora))}</span>
+            </div>
+            <div class="historico-info">
+              Qtd: <b>${formatarNumero(m.quantidade)}</b>
+              &nbsp;•&nbsp;
+              Responsável: ${escaparHTML(m.responsavel)}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    /* =====================================================
+       MOTORES - FORMULÁRIO (CAMPOS EM CASCATA)
+       ===================================================== */
+    function motorPreencherSelect(select, valores, rotuloFn, placeholder) {
+      const anterior = select.value;
+
+      select.innerHTML = `<option value="">${placeholder}</option>`;
+
+      valores.forEach((valor) => {
+        const option = document.createElement("option");
+        option.value = String(valor);
+        option.textContent = rotuloFn ? rotuloFn(valor) : String(valor);
+        select.appendChild(option);
+      });
+
+      if (valores.map(String).includes(anterior)) {
+        select.value = anterior;
+      } else if (valores.length === 1) {
+        select.value = String(valores[0]);
+      }
+    }
+
+    function motorAtualizarModelos() {
+      const diametro = motorEl("motorDiametro").value;
+
+      motorPreencherSelect(
+        motorEl("motorModelo"),
+        MOTORES_MODELOS[diametro] || [],
+        null,
+        "Selecione..."
+      );
+    }
+
+    function motorAtualizarPotencias() {
+      const diametro = motorEl("motorDiametro").value;
+      const fase = motorEl("motorFase").value;
+
+      motorPreencherSelect(
+        motorEl("motorPotencia"),
+        diametro && fase ? listaPotencias(diametro, fase) : [],
+        formatarPotencia,
+        diametro && fase ? "Selecione..." : "Diâmetro e fase"
+      );
+    }
+
+    function motorAtualizarTensoes() {
+      const fase = motorEl("motorFase").value;
+
+      motorPreencherSelect(
+        motorEl("motorTensao"),
+        MOTORES_TENSOES[fase] || [],
+        null,
+        "Selecione..."
+      );
+    }
+
+    function motorSelecionado() {
+      const diametro = motorEl("motorDiametro").value;
+      const modelo = motorEl("motorModelo").value;
+      const fase = motorEl("motorFase").value;
+      const potencia = motorEl("motorPotencia").value;
+      const tensao = motorEl("motorTensao").value;
+
+      if (!diametro || !modelo || !fase || !potencia || !tensao) return null;
+
+      return {
+        diametro: diametro,
+        modelo: modelo,
+        fase: fase,
+        potencia: Number(potencia),
+        tensao: tensao
+      };
+    }
+
+    function atualizarDicaMotor() {
+      const dica = motorEl("motorDica");
+      const motor = motorSelecionado();
+
+      if (!motor) {
+        dica.innerHTML = "";
+        return;
+      }
+
+      const estoque = estoqueDoMotor(chaveMotor(motor));
+      dica.innerHTML = `Em estoque: <b>${formatarNumero(estoque)}</b> un.`;
+    }
+
+    /* =====================================================
+       MOTORES - REGISTRAR MOVIMENTAÇÃO
+       ===================================================== */
+    motorEl("formMotor").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const motor = motorSelecionado();
+
+      if (!motor) {
+        mostrarAviso("Preencha diâmetro, modelo, fase, potência e tensão.", "warning");
+        return;
+      }
+
+      const tipo = motorEl("motorTipo").value;
+      const quantidade = Number(motorEl("motorQuantidade").value);
+
+      if (!Number.isInteger(quantidade) || quantidade <= 0) {
+        mostrarAviso("Informe uma quantidade válida (número inteiro maior que zero).", "warning");
+        return;
+      }
+
+      const responsavel = motorEl("motorResponsavel").value.trim();
+
+      if (!responsavel) {
+        mostrarAviso("Informe o responsável pela movimentação.", "warning");
+        return;
+      }
+
+      const estoqueAntes = estoqueDoMotor(chaveMotor(motor));
+
+      if (tipo === "Saída" && quantidade > estoqueAntes) {
+        mostrarAviso(
+          `Estoque insuficiente. Disponível: ${formatarNumero(estoqueAntes)} un. para ${descricaoMotor(motor)}.`,
+          "warning"
+        );
+        return;
+      }
+
+      const btn = motorEl("btnSalvarMotor");
+      btn.disabled = true;
+      btn.innerText = "Salvando...";
+
+      try {
+        const resposta = await fetch(URL_APPS_SCRIPT, {
+          method: "POST",
+          redirect: "follow",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            destino: "motores",
+            tipo: tipo,
+            diametro: motor.diametro,
+            modelo: motor.modelo,
+            fase: motor.fase,
+            potencia: motor.potencia,
+            tensao: motor.tensao,
+            quantidade: quantidade,
+            responsavel: responsavel
+          })
+        });
+
+        if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+
+        const resultado = await resposta.json();
+
+        if (!resultado || resultado.sucesso !== true) {
+          throw new Error(resultado?.erro || "O servidor não confirmou a movimentação.");
+        }
+
+        motorEl("motorQuantidade").value = "";
+
+        await atualizarMotores();
+
+        mostrarSucesso({
+          id: resultado.id,
+          material: descricaoMotor(motor),
+          tipo: tipo,
+          quantidade: quantidade,
+          unidade: "un.",
+          estoqueAtual: estoqueDoMotor(chaveMotor(motor))
+        });
+
+      } catch (erro) {
+        console.error("Erro ao registrar motor:", erro);
+        mostrarAviso("Erro ao registrar movimentação: " + erro.message, "danger");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Registrar Operação";
+      }
+    });
+
+    /* =====================================================
+       MOTORES - HISTÓRICO
+       ===================================================== */
+    function aplicarFiltrosHistoricoMotores() {
+      const diametro = motorEl("motorHistDiametro").value;
+      const modelo = motorEl("motorHistModelo").value;
+      const fase = motorEl("motorHistFase").value;
+      const tipo = motorEl("motorHistTipo").value;
+
+      motoresHistFiltrado = motoresMov.filter((m) => {
+        if (diametro && m.diametro !== diametro) return false;
+        if (modelo && m.modelo !== modelo) return false;
+        if (fase && m.fase !== fase) return false;
+        if (tipo && m.tipo !== tipo) return false;
+        return true;
+      });
+
+      motoresPagina = 1;
+      renderizarHistoricoMotores();
+    }
+
+    function renderizarHistoricoMotores() {
+      const corpo = motorEl("corpoHistoricoMotores");
+      corpo.innerHTML = "";
+
+      if (!motoresHistFiltrado.length) {
+        corpo.innerHTML = `
+          <tr>
+            <td colspan="10" class="estado-tabela">Nenhuma movimentação encontrada.</td>
+          </tr>
+        `;
+        renderizarPaginacaoMotores();
+        return;
+      }
+
+      const inicio = (motoresPagina - 1) * MOTORES_POR_PAGINA;
+
+      motoresHistFiltrado.slice(inicio, inicio + MOTORES_POR_PAGINA).forEach((m) => {
+        const classeTipo = m.tipo === "Entrada" ? "badge-historico-entrada" : "badge-historico-saida";
+        const classeQtd = m.tipo === "Entrada" ? "quantidade-entrada" : "quantidade-saida";
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td class="text-center"><span class="id-movimentacao">${escaparHTML(m.id)}</span></td>
+          <td class="text-center">${escaparHTML(formatarDataHora(m.dataHora))}</td>
+          <td class="text-center"><span class="${classeTipo}">${escaparHTML(m.tipo)}</span></td>
+          <td class="text-center">${escaparHTML(formatarDiametro(m.diametro))}</td>
+          <td class="text-center fw-semibold">${escaparHTML(m.modelo)}</td>
+          <td class="text-center"><span class="badge-fase ${classeFase(m.fase)}">${escaparHTML(m.fase)}</span></td>
+          <td class="text-center">${escaparHTML(formatarPotencia(m.potencia))}</td>
+          <td class="text-center">${escaparHTML(m.tensao)}</td>
+          <td class="text-center"><span class="${classeQtd}">${formatarNumero(m.quantidade)}</span></td>
+          <td>${escaparHTML(m.responsavel)}</td>
+        `;
+
+        corpo.appendChild(tr);
+      });
+
+      renderizarPaginacaoMotores();
+    }
+
+    function renderizarPaginacaoMotores() {
+      const total = motoresHistFiltrado.length;
+      const totalPaginas = Math.max(1, Math.ceil(total / MOTORES_POR_PAGINA));
+      const inicio = total === 0 ? 0 : ((motoresPagina - 1) * MOTORES_POR_PAGINA) + 1;
+      const fim = Math.min(motoresPagina * MOTORES_POR_PAGINA, total);
+
+      motorEl("motorPaginacaoInfo").innerText =
+        total === 0 ? "Nenhum registro" : `${inicio}–${fim} de ${formatarNumero(total)} registros`;
+
+      const container = motorEl("motorPaginacaoBotoes");
+      container.innerHTML = "";
+
+      if (totalPaginas <= 1) return;
+
+      const anterior = document.createElement("button");
+      anterior.type = "button";
+      anterior.className = "btn-pagina";
+      anterior.innerText = "‹";
+      anterior.disabled = motoresPagina <= 1;
+      anterior.addEventListener("click", () => {
+        motoresPagina--;
+        renderizarHistoricoMotores();
+      });
+      container.appendChild(anterior);
+
+      const indicador = document.createElement("span");
+      indicador.className = "paginacao-info mx-2";
+      indicador.innerText = `Página ${motoresPagina} de ${totalPaginas}`;
+      container.appendChild(indicador);
+
+      const proxima = document.createElement("button");
+      proxima.type = "button";
+      proxima.className = "btn-pagina";
+      proxima.innerText = "›";
+      proxima.disabled = motoresPagina >= totalPaginas;
+      proxima.addEventListener("click", () => {
+        motoresPagina++;
+        renderizarHistoricoMotores();
+      });
+      container.appendChild(proxima);
+    }
+
+    /* =====================================================
+       MOTORES - SUB-TELAS (ESTOQUE / HISTÓRICO)
+       ===================================================== */
+    function abrirSubTelaMotores(sub) {
+      const estoque = sub === "estoque";
+
+      motorEl("motoresSubEstoque").style.display = estoque ? "block" : "none";
+      motorEl("motoresSubHistorico").style.display = estoque ? "none" : "block";
+
+      motorEl("btnMotorSubEstoque").classList.toggle("active", estoque);
+      motorEl("btnMotorSubHistorico").classList.toggle("active", !estoque);
+    }
+
+    /* =====================================================
+       MOTORES - EVENTOS
+       ===================================================== */
+    motorEl("btnMenuMotores").addEventListener("click", function () {
+      abrirTela("motores");
+    });
+
+    motorEl("btnMotorSubEstoque").addEventListener("click", function () {
+      abrirSubTelaMotores("estoque");
+    });
+
+    motorEl("btnMotorSubHistorico").addEventListener("click", function () {
+      abrirSubTelaMotores("historico");
+    });
+
+    motorEl("btnMotorVerHistorico").addEventListener("click", function () {
+      abrirSubTelaMotores("historico");
+    });
+
+    motorEl("btnAtualizarMotores").addEventListener("click", async function () {
+      const btn = this;
+      btn.disabled = true;
+      btn.innerText = "Atualizando...";
+
+      try {
+        await atualizarMotores();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "↻ &nbsp; Atualizar";
+      }
+    });
+
+    motorEl("motorDiametro").addEventListener("change", function () {
+      motorAtualizarModelos();
+      motorAtualizarPotencias();
+      atualizarDicaMotor();
+    });
+
+    motorEl("motorFase").addEventListener("change", function () {
+      motorAtualizarTensoes();
+      motorAtualizarPotencias();
+      atualizarDicaMotor();
+    });
+
+    ["motorModelo", "motorPotencia", "motorTensao"].forEach((id) => {
+      motorEl(id).addEventListener("change", atualizarDicaMotor);
+    });
+
+    motorEl("motorPillsDiametro").addEventListener("click", function (e) {
+      const botao = e.target.closest("[data-diam]");
+      if (!botao) return;
+
+      motoresDiametroFiltro = botao.getAttribute("data-diam");
+
+      this.querySelectorAll(".pill-btn").forEach((b) => {
+        b.classList.toggle("active", b === botao);
+      });
+
+      renderizarTabelaMotores();
+    });
+
+    motorEl("motorFiltroModelo").addEventListener("change", renderizarTabelaMotores);
+    motorEl("motorFiltroFase").addEventListener("change", renderizarTabelaMotores);
+
+    ["motorHistDiametro", "motorHistModelo", "motorHistFase", "motorHistTipo"].forEach((id) => {
+      motorEl(id).addEventListener("change", aplicarFiltrosHistoricoMotores);
+    });
+
+    motorEl("btnMotorLimparFiltros").addEventListener("click", function () {
+      ["motorHistDiametro", "motorHistModelo", "motorHistFase", "motorHistTipo"].forEach((id) => {
+        motorEl(id).value = "";
+      });
+      aplicarFiltrosHistoricoMotores();
+    });
 
     /* =====================================================
        INICIALIZAÇÃO
